@@ -1,0 +1,191 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'System UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+
+:root {
+    --primary-text-color: #f4f4f4;
+    --secondary-color: #303030;
+    --background-color: #080818;
+    --site-height: 100%;
+    --site-width: 100%;
+    --nav-padding: 15px 30px;
+    --section-padding: 15px 30px 25px 30px;
+    --padding-s:5px;
+    --padding-m:10px;
+    --padding-l:15px;
+    --padding-xl:20px;
+    --padding-xxl:25px;
+    --bg-button-color: #141523;
+    --bg-button-hover-color: #1d1e2e;
+    --button-border-radius: 30px;
+    
+
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--primary-text-color);
+    height: var(--site-height);
+    width: var(--site-width);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--nav-padding);
+    background-color: var(--background-color);
+    position: sticky;
+    top: 0;
+
+    button {
+        background-color: var(--bg-button-color);
+        color: var(--primary-text-color);
+        border: none;
+        padding: var(--padding-m);
+        cursor: pointer;
+        border-radius: var(--button-border-radius);
+        corner-shape: squircle;
+    }
+
+    button:hover {
+        background-color: var(--bg-button-hover-color);
+        color: white
+    }
+}
+
+main {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+section {
+    padding: var(--section-padding);
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+    gap: var(--padding-xxl);
+    
+    
+    .task-column {
+        background-color: var(--bg-button-color);
+        flex-grow: 1;
+        width: 100%;
+        gap: var(--padding-xl);
+        border-radius: 10px;
+        transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    .hover-over {
+        border: 2px dashed var(--primary-text-color);
+        scale: 1.05;
+    }
+
+    .heading {
+        display: flex;
+        justify-content: space-between;
+        padding: var(--padding-m);
+    }
+
+    .task {
+        background-color: var(--bg-button-hover-color);
+        padding: var(--padding-m);
+        border-radius: 5px;
+        margin: var(--padding-m);
+        display: flex;
+        flex-direction: column;
+        cursor: grab;
+        
+
+        button {
+            align-self: flex-end;
+            background-color: var(--bg-button-color);
+            color: var(--primary-text-color);
+            border: none;
+            padding: var(--padding-m);
+            cursor: pointer;
+            border-radius: var(--button-border-radius);
+            corner-shape: squircle;
+        }
+
+        button:hover {
+            background-color: var(--background-color);
+            color: white
+        }
+    }
+}
+
+.modal {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    
+
+    
+    .bg {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.329);
+        backdrop-filter: blur(5px);
+    }
+
+    .center {
+        background-color: var(--background-color);
+        padding: var(--padding-xxl);
+        border-radius: var(--padding-m);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: var(--padding-m);
+        z-index: 10;
+
+
+        input, textarea {
+            max-width: 500px;
+            box-sizing: border-box;
+            width: 100%;
+            resize: none;
+            padding: var(--padding-m);
+            border-radius: var(--padding-m);
+            border: none;
+            background-color: var(--bg-button-color);
+            color: var(--primary-text-color);
+        }
+
+        button {
+            background-color: var(--bg-button-color);
+            color: rgb(7, 238, 7);
+            font-weight: 900;
+            border: none;
+            padding: var(--padding-m);
+            cursor: pointer;
+            border-radius: var(--button-border-radius);
+            corner-shape: squircle;
+            width: 100%;}
+
+        button:hover {
+            background-color: var(--bg-button-hover-color);
+            color: white
+        }
+    }
+}
+
+    .active {
+        display: flex;
+    }
