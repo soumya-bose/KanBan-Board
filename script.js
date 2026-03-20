@@ -1,16 +1,24 @@
-const todo = document.querySelector("#todo");
-const progress = document.querySelector("#in-progress");
-const done = document.querySelector("#done");
+// ✅ Initialize mobile drag-and-drop polyfill for touch devices
+MobileDragDrop.polyfill({ holdToDrag: 100 });
+// Necessary for iOS Safari to allow polyfill 
+window.addEventListener('touchmove', function () { }, { passive: false });
+
+const todoList = document.querySelector("#todo");
+const progressList = document.querySelector("#progress");
+const doneList = document.querySelector("#done");
 
 let draggedTaskId = null;
 
 // 🧠 Main data (array)
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-const addTaskButton = document.querySelector("#add-new-task");
-const toggleModalButton = document.querySelector("#toggle-modal");
-const modal = document.querySelector(".modal");
-const closeModalButton = document.querySelector(".fa-xmark");
+// Migrate OLD tasks without createdAt
+tasks = tasks.map(task => {
+    if (!task.createdAt) {
+        task.createdAt = new Date().toISOString();
+    }
+    return task;
+});
 
 // ✅ Save to localStorage
 function saveData() {
@@ -19,17 +27,32 @@ function saveData() {
 
 // ✅ Update counts
 function updateCounts() {
-    [todo, progress, done].forEach((col) => {
-        const count = col.querySelector(".right");
-        const taskCount = col.querySelectorAll(".task").length;
-        if (count) count.innerText = taskCount;
-    });
+    document.getElementById('todo-count').innerText = tasks.filter(t => t.status === 'todo').length;
+    document.getElementById('progress-count').innerText = tasks.filter(t => t.status === 'progress').length;
+    document.getElementById('done-count').innerText = tasks.filter(t => t.status === 'done').length;
 }
 
-// ✅ Render tasks (HEADER SAFE)
+// FORMAT DATE
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-GB', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true
+    }).replace(',', '');
+}
+
+// ✅ Render tasks
 function renderTasks() {
-    // ❗ Only remove old tasks, NOT header
-    document.querySelectorAll(".task").forEach(el => el.remove());
+    // Clear all lists
+    todoList.innerHTML = '';
+    progressList.innerHTML = '';
+    doneList.innerHTML = '';
 
     tasks.forEach((task) => {
         const div = document.createElement("div");
@@ -37,15 +60,23 @@ function renderTasks() {
         div.draggable = true;
         div.dataset.id = task.id;
 
+        const timeString = task.createdAt ? formatDate(task.createdAt) : '';
+
         div.innerHTML = `
-            <h2>${task.title}</h2>
-            <p>${task.desc}</p>
-            <button class="delete-btn">Delete</button>
+            <h3>${task.title}</h3>
+            ${timeString ? `<span class="time">${timeString}</span>` : ''}
+            <button class="delete-btn"><i class="fa-solid fa-trash"></i></button>
         `;
 
         // Drag start
-        div.addEventListener("dragstart", () => {
+        div.addEventListener("dragstart", (e) => {
             draggedTaskId = task.id;
+            // set slightly opacity when dragging
+            setTimeout(() => div.style.opacity = '0.5', 0);
+        });
+
+        div.addEventListener("dragend", () => {
+            div.style.opacity = '1';
         });
 
         // Delete
@@ -57,11 +88,11 @@ function renderTasks() {
 
         // Append based on status
         if (task.status === "todo") {
-            todo.appendChild(div);
+            todoList.appendChild(div);
         } else if (task.status === "progress") {
-            progress.appendChild(div);
+            progressList.appendChild(div);
         } else {
-            done.appendChild(div);
+            doneList.appendChild(div);
         }
     });
 
@@ -70,73 +101,82 @@ function renderTasks() {
 
 // ✅ Drag & Drop setup
 function setupColumn(column, status) {
-    column.addEventListener("dragenter", function (e) {
+    // We attach the listeners to the parent column to make the whole area droppable
+    const colContainer = column.parentElement;
+
+    colContainer.addEventListener("dragenter", (e) => {
         e.preventDefault();
-        this.classList.add("hover-over");
+        colContainer.classList.add("hover-over");
     });
 
-    column.addEventListener("dragleave", function (e) {
+    colContainer.addEventListener("dragleave", (e) => {
         e.preventDefault();
-        this.classList.remove("hover-over");
+        // Only remove if not dragging into a child
+        if (!colContainer.contains(e.relatedTarget)) {
+            colContainer.classList.remove("hover-over");
+        }
     });
 
-    column.addEventListener("dragover", (e) => e.preventDefault());
+    colContainer.addEventListener("dragover", (e) => {
+        e.preventDefault();
+    });
 
-    column.addEventListener("drop", function () {
-        this.classList.remove("hover-over");
+    colContainer.addEventListener("drop", (e) => {
+        e.preventDefault();
+        colContainer.classList.remove("hover-over");
 
-        tasks = tasks.map(task => {
-            if (task.id === draggedTaskId) {
-                return { ...task, status };
-            }
-            return task;
-        });
+        if (draggedTaskId) {
+            tasks = tasks.map(task => {
+                if (task.id === draggedTaskId) {
+                    return { ...task, status };
+                }
+                return task;
+            });
+
+            saveData();
+            renderTasks();
+            draggedTaskId = null;
+        }
+    });
+}
+
+setupColumn(todoList, "todo");
+setupColumn(progressList, "progress");
+setupColumn(doneList, "done");
+
+// ✅ Add task logic for all columns
+document.querySelectorAll('.add-task-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const status = e.target.dataset.status;
+        const input = document.getElementById(`${status}-input`);
+        const title = input.value;
+
+        if (!title.trim()) return;
+
+        const newTask = {
+            id: Date.now().toString(),
+            title,
+            createdAt: new Date().toISOString(),
+            status
+        };
+
+        tasks.push(newTask);
+        input.value = '';
 
         saveData();
         renderTasks();
     });
-}
-
-setupColumn(todo, "todo");
-setupColumn(progress, "progress");
-setupColumn(done, "done");
-
-// ✅ Add task
-addTaskButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    const title = document.querySelector("#task-title-input").value;
-    const desc = document.querySelector("#task-description-input").value;
-
-    if (!title.trim()) return;
-
-    const newTask = {
-        id: Date.now(),
-        title,
-        desc,
-        status: "todo"
-    };
-
-    tasks.push(newTask);
-
-    saveData();
-    renderTasks();
-
-    modal.classList.remove("active");
-
-    document.querySelector("#task-title-input").value = "";
-    document.querySelector("#task-description-input").value = "";
 });
 
-// ✅ Modal controls
-toggleModalButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    modal.classList.toggle("active");
-});
-
-closeModalButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    modal.classList.remove("active");
+// Allow entering with Enter key
+document.querySelectorAll('.add-task-input').forEach(input => {
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const status = input.id.split('-')[0]; // todo-input -> todo
+            const btn = document.querySelector(`.add-task-btn[data-status="${status}"]`);
+            if (btn) btn.click();
+        }
+    });
 });
 
 // ✅ Initial render

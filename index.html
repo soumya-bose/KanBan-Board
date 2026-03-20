@@ -3,57 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kan Ban Board</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>Kanban Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Polyfill for touch drag and drop -->
+    <link rel="stylesheet" href="https://unpkg.com/mobile-drag-drop@2.3.0-rc.2/default.css">
+    <script src="https://unpkg.com/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <header>
+      <h1 class="main-title">Kanban Board</h1>
+    </header>
     <main>
-      <nav>
-        <div class="left">Kanban Board</div>
-        <div class="right"><button id="toggle-modal">Add New Task</button></div>
-      </nav>
-      <section>
-        <div id="todo" class="task-column">
-          <div class="heading">
-            <div class="left">To Do</div>
-            <div class="right">Count : 0</div>
+      <section class="board">
+        <!-- TO DO -->
+        <div class="column" id="todo-column">
+          <div class="column-header">
+            <h2 class="todo-title">To Do <span class="count todo-count-bg" id="todo-count">0</span></h2>
           </div>
-          <div class="task" draggable="true">
-            <h2>Task 1</h2>
-            <p>This is a sample task description.</p>
-            <button>Delete</button>
+          <div class="task-list" id="todo" data-status="todo">
+            <!-- Tasks will go here -->
+          </div>
+          <div class="add-task-container">
+            <input type="text" class="add-task-input" id="todo-input" autocomplete="off" placeholder="Add a new task..." />
+            <button class="add-task-btn todo-btn" data-status="todo">Add Task</button>
           </div>
         </div>
-        <div id="in-progress" class="task-column">
-          <div class="heading">
-            <div class="left">In Progress</div>
-            <div class="right">Count : 0</div>
+
+        <!-- IN PROGRESS -->
+        <div class="column" id="progress-column">
+          <div class="column-header">
+            <h2 class="progress-title">In Progress <span class="count progress-count-bg" id="progress-count">0</span></h2>
+          </div>
+          <div class="task-list" id="progress" data-status="progress">
+            <!-- Tasks will go here -->
+          </div>
+          <div class="add-task-container">
+            <input type="text" class="add-task-input" id="progress-input" autocomplete="off" placeholder="Add a new task..." />
+            <button class="add-task-btn progress-btn" data-status="progress">Add Task</button>
           </div>
         </div>
-        <div id="done" class="task-column">
-          <div class="heading">
-            <div class="left">Done</div>
-            <div class="right">Count : 0</div>
+
+        <!-- COMPLETED -->
+        <div class="column" id="done-column">
+          <div class="column-header">
+            <h2 class="done-title">Completed <span class="count done-count-bg" id="done-count">0</span></h2>
+          </div>
+          <div class="task-list" id="done" data-status="done">
+            <!-- Tasks will go here -->
+          </div>
+          <div class="add-task-container">
+            <input type="text" class="add-task-input" id="done-input" autocomplete="off" placeholder="Add a new task..." />
+            <button class="add-task-btn done-btn" data-status="done">Add Task</button>
           </div>
         </div>
       </section>
     </main>
-
-    <div class="modal add-new-task">
-      <div class="bg"></div>
-      <div class="center"> 
-        <h2>Add New Task</h2>
-        <form  class="center">
-          <i class="fa-solid fa-xmark" style="color: #38e20d; cursor: pointer; position: absolute; top: 15px; right: 15px;"></i>
-          <input type="text" id="task-title-input" name="task-title-input" placeholder="Task Title" />
-          <textarea id="task-description-input" name="task-description-input" placeholder="Task Description"></textarea>
-          <button id="add-new-task" type="submit">Add Task</button>
-        </form>
-      </div>
-    </div>
-
-
     <script src="script.js"></script>
   </body>
 </html>
